@@ -36,13 +36,14 @@ if [ -z "$_SNT_REPO_ROOT" ] && [ -n "${SUPERNODE_TOKENIZER_REPO_ROOT:-}" ]; then
 fi
 if [ -z "$_SNT_REPO_ROOT" ]; then
   _snt_env_fail "[supernode-tokenizer] unable to determine repo root while sourcing experiments/env_snellius.sh"
+  return 1 2>/dev/null || exit 1
 fi
 
 export SUPERNODE_TOKENIZER_REPO_ROOT="$_SNT_REPO_ROOT"
 
-SUPERNODE_TOKENIZER_CACHE_ROOT="/scratch/rvalper/robotics/icil_rlbench/icil_rlbench/.rlbench_cache_dense_18/"
+SUPERNODE_TOKENIZER_CACHE_ROOT="/projects/prjs1905/robotics/rlbench/rlbench18/.rlbench_cache_dense_18/"
 SUPERNODE_TOKENIZER_OUTPUT_ROOT="$SUPERNODE_TOKENIZER_REPO_ROOT/output"
-SUPERNODE_TOKENIZER_CHECKPOINT_ROOT="/scratch/rvalper/robotics/icil_rlbench/icil_runs/checkpoints/"
+SUPERNODE_TOKENIZER_CHECKPOINT_ROOT="/projects/prjs1905/robotics/rlbench/rlbench18/checkpoints/"
 SUPERNODE_TOKENIZER_EVAL_ROOT="$SUPERNODE_TOKENIZER_REPO_ROOT/eval_output"
 
 export SUPERNODE_TOKENIZER_CACHE_ROOT
