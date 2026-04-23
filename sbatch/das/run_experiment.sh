@@ -27,6 +27,8 @@ else
 fi
 printf 'nproc=%s\n' "$(nproc)"
 printf 'CUDA_VISIBLE_DEVICES=%s\n' "${CUDA_VISIBLE_DEVICES:-<unset>}"
+printf 'CONDA_DEFAULT_ENV=%s\n' "${CONDA_DEFAULT_ENV:-<unset>}"
+printf 'CONDA_PREFIX=%s\n' "${CONDA_PREFIX:-<unset>}"
 if command -v nvidia-smi >/dev/null 2>&1; then
   nvidia-smi
 else

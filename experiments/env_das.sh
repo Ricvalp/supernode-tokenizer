@@ -33,15 +33,25 @@ SUPERNODE_TOKENIZER_CACHE_ROOT="/var/scratch/valperga/robotics/rlbench/rlbench18
 SUPERNODE_TOKENIZER_OUTPUT_ROOT="$SUPERNODE_TOKENIZER_REPO_ROOT/output"
 SUPERNODE_TOKENIZER_CHECKPOINT_ROOT="/var/scratch/valperga/robotics/rlbench/rlbench18/checkpoints"
 SUPERNODE_TOKENIZER_EVAL_ROOT="$SUPERNODE_TOKENIZER_REPO_ROOT/eval_output"
+SUPERNODE_TOKENIZER_CONDA_ROOT="/var/scratch/valperga/miniconda3"
+SUPERNODE_TOKENIZER_CONDA_ENV="icil-rlbench"
+SUPERNODE_TOKENIZER_CONDA_PREFIX="$SUPERNODE_TOKENIZER_CONDA_ROOT/envs/$SUPERNODE_TOKENIZER_CONDA_ENV"
 
 export SUPERNODE_TOKENIZER_REPO_ROOT
 export SUPERNODE_TOKENIZER_CACHE_ROOT
 export SUPERNODE_TOKENIZER_OUTPUT_ROOT
 export SUPERNODE_TOKENIZER_CHECKPOINT_ROOT
 export SUPERNODE_TOKENIZER_EVAL_ROOT
+export SUPERNODE_TOKENIZER_CONDA_ROOT
+export SUPERNODE_TOKENIZER_CONDA_ENV
+export SUPERNODE_TOKENIZER_CONDA_PREFIX
 
 if [ ! -d "$SUPERNODE_TOKENIZER_REPO_ROOT" ]; then
   _snt_env_fail "[supernode-tokenizer] repo root not found: $SUPERNODE_TOKENIZER_REPO_ROOT"
+  return 1 2>/dev/null || exit 1
+fi
+if [ ! -x "$SUPERNODE_TOKENIZER_CONDA_PREFIX/bin/python" ]; then
+  _snt_env_fail "[supernode-tokenizer] conda env python not found: $SUPERNODE_TOKENIZER_CONDA_PREFIX/bin/python"
   return 1 2>/dev/null || exit 1
 fi
 
@@ -51,6 +61,14 @@ if ! _snt_init_modules; then
 fi
 
 module load cuda12.6/toolkit
+
+case ":$PATH:" in
+  *":$SUPERNODE_TOKENIZER_CONDA_PREFIX/bin:"*) ;;
+  *) PATH="$SUPERNODE_TOKENIZER_CONDA_PREFIX/bin:$PATH" ;;
+esac
+export PATH
+export CONDA_DEFAULT_ENV="$SUPERNODE_TOKENIZER_CONDA_ENV"
+export CONDA_PREFIX="$SUPERNODE_TOKENIZER_CONDA_PREFIX"
 
 : "${WANDB_PROJECT:=supernode-tokenizer}"
 : "${WANDB_MODE:=online}"
@@ -82,12 +100,15 @@ printf '  %s=%s\n' "SUPERNODE_TOKENIZER_CACHE_ROOT" "$SUPERNODE_TOKENIZER_CACHE_
 printf '  %s=%s\n' "SUPERNODE_TOKENIZER_OUTPUT_ROOT" "$SUPERNODE_TOKENIZER_OUTPUT_ROOT"
 printf '  %s=%s\n' "SUPERNODE_TOKENIZER_CHECKPOINT_ROOT" "$SUPERNODE_TOKENIZER_CHECKPOINT_ROOT"
 printf '  %s=%s\n' "SUPERNODE_TOKENIZER_EVAL_ROOT" "$SUPERNODE_TOKENIZER_EVAL_ROOT"
+printf '  %s=%s\n' "SUPERNODE_TOKENIZER_CONDA_ENV" "$SUPERNODE_TOKENIZER_CONDA_ENV"
+printf '  %s=%s\n' "SUPERNODE_TOKENIZER_CONDA_PREFIX" "$SUPERNODE_TOKENIZER_CONDA_PREFIX"
 printf '  %s=%s\n' "WANDB_PROJECT" "$WANDB_PROJECT"
 printf '  %s=%s\n' "WANDB_MODE" "$WANDB_MODE"
 if [ -n "${WANDB_ENTITY:-}" ]; then
   printf '  %s=%s\n' "WANDB_ENTITY" "$WANDB_ENTITY"
 fi
 printf '  %s=%s\n' "CUDA_MODULE" "cuda12.6/toolkit"
+printf '  %s=%s\n' "PYTHON" "$(command -v python)"
 if [ -n "${COPPELIASIM_ROOT:-}" ]; then
   printf '  %s=%s\n' "COPPELIASIM_ROOT" "$COPPELIASIM_ROOT"
 fi
