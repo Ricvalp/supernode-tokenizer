@@ -28,7 +28,6 @@ class DiffusionPolicyConfig:
     set_alpha_to_one: bool = True
     steps_offset: int = 0
     num_inference_steps: Optional[int] = None
-    use_task_adaln: bool = True
 
 
 class ObservationDiffusionPolicy(nn.Module):

@@ -36,36 +36,68 @@ The agreed task mapping is:
 
 The geometry-sensitive subset is reported using those resolved task names.
 
+## Install
+
+From the repo root:
+
+```bash
+pip install -e .
+```
+
+Optional extras:
+
+```bash
+pip install -e '.[video,wandb]'
+```
+
+RLBench and PyRep are only required for raw dataset generation and live rollout evaluation. Training from cached HDF5 data does not require them.
+
+## Experiment Env
+
+Before running the launchers in `experiments/`, source:
+
+```bash
+source experiments/env.sh
+```
+
+That file sets real defaults for:
+- `SUPERNODE_TOKENIZER_CACHE_ROOT`
+- `SUPERNODE_TOKENIZER_OUTPUT_ROOT`
+- `SUPERNODE_TOKENIZER_CHECKPOINT_ROOT`
+- `SUPERNODE_TOKENIZER_EVAL_ROOT`
+
+It also wires in `COPPELIASIM_ROOT` / `LD_LIBRARY_PATH` / Qt plugin variables when `$HOME/CoppeliaSim` exists, which is useful for rollout evaluation and robustness runs.
+
 ## Train
 
 Chunk-regression baseline:
 
 ```bash
-PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/train_chunk_policy.py \
-  --config=supernode-tokenizer/configs/train_chunk_policy.py
+python scripts/train_chunk_policy.py \
+  --config=configs/train_chunk_policy.py
 ```
 
 Supernode chunk model:
 
 ```bash
-PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/train_chunk_policy.py \
-  --config=supernode-tokenizer/configs/train_chunk_policy.py \
+python scripts/train_chunk_policy.py \
+  --config=configs/train_chunk_policy.py \
   --config.model.encoder_name=supernode
 ```
 
 Diffusion model:
 
 ```bash
-PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/train_diffusion_policy.py \
-  --config=supernode-tokenizer/configs/train_diffusion_policy.py
+python scripts/train_diffusion_policy.py \
+  --config=configs/train_diffusion_policy.py
 ```
 
 DDP:
 
 ```bash
-PYTHONPATH=supernode-tokenizer torchrun --standalone --nproc_per_node=4 \
-  supernode-tokenizer/scripts/train_chunk_policy.py \
-  --config=supernode-tokenizer/configs/train_chunk_policy.py
+torchrun --standalone --nproc_per_node=4 \
+  scripts/train_chunk_policy.py \
+  --config=configs/train_chunk_policy.py
 ```
 
 ## Evaluate
@@ -73,16 +105,16 @@ PYTHONPATH=supernode-tokenizer torchrun --standalone --nproc_per_node=4 \
 Policy rollout evaluation:
 
 ```bash
-PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/eval_policy.py \
-  --config=supernode-tokenizer/configs/eval_policy.py \
+python scripts/eval_policy.py \
+  --config=configs/eval_policy.py \
   --config.checkpoint_path=/path/to/checkpoint.pt
 ```
 
 Robustness sweep:
 
 ```bash
-PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/eval_robustness.py \
-  --config=supernode-tokenizer/configs/eval_robustness.py \
+python scripts/eval_robustness.py \
+  --config=configs/eval_robustness.py \
   --config.checkpoint_path=/path/to/checkpoint.pt
 ```
 
@@ -98,4 +130,5 @@ PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/eval_robustnes
 - RGB hooks exist but default to `False` everywhere.
 - Low-data mode currently uses deterministic truncation per variation via `data.low_data_train_demos_per_variation`.
 - Rollout eval cycles over all RLBench task variations when `eval.variation_ids` is left empty.
-- All reused logic was copied locally into this directory so the codepath can be moved out of `icil-rlbench` later.
+- The repo-root `scripts/*.py` entrypoints now self-resolve imports and default config paths, so they can be run directly from this checkout without a parent-directory `PYTHONPATH` hack.
+- All reused logic was copied locally into this directory so the codepath can stay self-contained.

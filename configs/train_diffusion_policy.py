@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import os
 import time
+from pathlib import Path
 
 from ml_collections import ConfigDict
 
 from supernode_tokenizer.data import RLBENCH18_TASKS
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def get_config() -> ConfigDict:
@@ -13,7 +16,10 @@ def get_config() -> ConfigDict:
     cfg.seed = 0
 
     cfg.data = ConfigDict()
-    cfg.data.cache_root = os.environ.get("SUPERNODE_TOKENIZER_CACHE_ROOT", os.environ.get("ICIL_CACHE_ROOT", "./.rlbench_cache_standard_il"))
+    cfg.data.cache_root = os.environ.get(
+        "SUPERNODE_TOKENIZER_CACHE_ROOT",
+        os.environ.get("ICIL_CACHE_ROOT", str(REPO_ROOT / ".rlbench_cache_standard_il")),
+    )
     cfg.data.tasks = list(RLBENCH18_TASKS)
     cfg.data.task_sampling = "variation_power"
     cfg.data.task_sampling_alpha = 0.5
@@ -94,7 +100,6 @@ def get_config() -> ConfigDict:
     cfg.model.diffusion_policy.set_alpha_to_one = True
     cfg.model.diffusion_policy.steps_offset = 0
     cfg.model.diffusion_policy.num_inference_steps = 50
-    cfg.model.diffusion_policy.use_task_adaln = True
 
     cfg.optimizer = ConfigDict()
     cfg.optimizer.lr = 1e-4
@@ -120,8 +125,11 @@ def get_config() -> ConfigDict:
     default_run = f"diffusion_{cfg.model.encoder_name}_{time.strftime('%Y%m%d_%H%M%S')}"
     cfg.output = ConfigDict()
     cfg.output.run_name = default_run
-    cfg.output.root_dir = os.environ.get("SUPERNODE_TOKENIZER_OUTPUT_ROOT", "supernode-tokenizer/output")
-    cfg.output.checkpoint_dir = os.environ.get("SUPERNODE_TOKENIZER_CHECKPOINT_ROOT", "supernode-tokenizer/checkpoints")
+    cfg.output.root_dir = os.environ.get("SUPERNODE_TOKENIZER_OUTPUT_ROOT", str(REPO_ROOT / "output"))
+    cfg.output.checkpoint_dir = os.environ.get(
+        "SUPERNODE_TOKENIZER_CHECKPOINT_ROOT",
+        str(REPO_ROOT / "checkpoints"),
+    )
 
     cfg.wandb = ConfigDict()
     cfg.wandb.enable = False

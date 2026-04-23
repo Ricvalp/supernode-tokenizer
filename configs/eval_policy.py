@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from ml_collections import ConfigDict
 
 from supernode_tokenizer.data import GEOMETRY_SENSITIVE_TASKS, RLBENCH18_TASKS
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def get_config() -> ConfigDict:
@@ -59,5 +62,5 @@ def get_config() -> ConfigDict:
     cfg.video.fps = 20
 
     cfg.output = ConfigDict()
-    cfg.output.root_dir = os.environ.get("SUPERNODE_TOKENIZER_EVAL_ROOT", "supernode-tokenizer/eval_output")
+    cfg.output.root_dir = os.environ.get("SUPERNODE_TOKENIZER_EVAL_ROOT", str(REPO_ROOT / "eval_output"))
     return cfg

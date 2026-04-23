@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
-PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/train_chunk_policy.py \
-  --config=supernode-tokenizer/configs/train_chunk_policy.py \
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+python scripts/train_chunk_policy.py \
+  --config=configs/train_chunk_policy.py \
   --config.model.encoder_name=supernode \
   --config.model.supernode_encoder.num_supernodes=128 \
   --config.model.supernode_nomsg_encoder.num_supernodes=128 \

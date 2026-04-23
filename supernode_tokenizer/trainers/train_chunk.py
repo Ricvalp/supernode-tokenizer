@@ -11,7 +11,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader
 
 from ..data import RLBenchStandardILDataset, StandardILCollator, StandardILConfig, build_store, infer_state_action_dims
-from ..models import ModelConfig, build_policy, validate_model_config
+from ..models import ModelConfig, TaskConditionerConfig, build_policy, validate_model_config
 from ..utils import (
     all_reduce_dict_mean,
     barrier,
@@ -87,12 +87,14 @@ def setup_runtime(cfg: Any) -> tuple[TrainChunkRuntime, Any, Any]:
     state_dim, action_dim = infer_state_action_dims(store)
 
     model_cfg = ModelConfig()
-    model_cfg = type(model_cfg)(**model_cfg.__dict__)
     model_cfg.encoder_name = str(cfg.model.encoder_name)
     model_cfg.policy_head = "chunk"
-    model_cfg.task_conditioner.num_tasks = len(selected_tasks)
-    model_cfg.task_conditioner.d_model = int(cfg.model.d_model)
-    model_cfg.task_conditioner.n_task_tokens = int(cfg.model.n_task_tokens)
+    model_cfg.task_conditioner = TaskConditionerConfig(
+        num_tasks=len(selected_tasks),
+        d_model=int(cfg.model.d_model),
+        n_task_tokens=int(cfg.model.n_task_tokens),
+        dropout=float(model_cfg.task_conditioner.dropout),
+    )
     for section_name, section in (
         ("perceiver_encoder", cfg.model.perceiver_encoder),
         ("supernode_encoder", cfg.model.supernode_encoder),

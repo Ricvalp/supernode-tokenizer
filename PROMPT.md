@@ -162,8 +162,7 @@ LD_LIBRARY_PATH="$HOME/CoppeliaSim:${LD_LIBRARY_PATH:-}" \
 QT_QPA_PLATFORM_PLUGIN_PATH="$HOME/CoppeliaSim" \
 QT_QPA_PLATFORM=xcb \
 DISPLAY=:99 \
-PYTHONPATH=supernode-tokenizer \
-python -u supernode-tokenizer/scripts/generate_rlbench_dataset.py \
+python -u scripts/generate_rlbench_dataset.py \
   --raw-root /path/to/raw_rlbench_export \
   --episodes-per-variation 150 \
   --variations 1 \
@@ -191,8 +190,7 @@ LD_LIBRARY_PATH="$HOME/CoppeliaSim:${LD_LIBRARY_PATH:-}" \
 QT_QPA_PLATFORM_PLUGIN_PATH="$HOME/CoppeliaSim" \
 QT_QPA_PLATFORM=xcb \
 DISPLAY=:99 \
-PYTHONPATH=supernode-tokenizer \
-python -u supernode-tokenizer/scripts/generate_rlbench_dataset.py \
+python -u scripts/generate_rlbench_dataset.py \
   --raw-root /path/to/raw_rlbench_export \
   --episodes-per-variation 150 \
   --variations 1 \
@@ -275,7 +273,7 @@ The local caching script is:
 Example command:
 
 ```bash
-PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/build_rlbench_cache.py \
+python scripts/build_rlbench_cache.py \
   --raw-root /path/to/raw_rlbench_export \
   --cache-root /path/to/cache_root \
   --num-points 4096 \
@@ -285,7 +283,7 @@ PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/build_rlbench_
 Optional task subset:
 
 ```bash
-PYTHONPATH=supernode-tokenizer python supernode-tokenizer/scripts/build_rlbench_cache.py \
+python scripts/build_rlbench_cache.py \
   --raw-root /path/to/raw_rlbench_export \
   --cache-root /path/to/cache_root \
   --tasks open_drawer,slide_block_to_color_target,place_wine_at_rack_location \
@@ -692,6 +690,7 @@ The main configs use these environment variables when available:
 - `WANDB_MODE`
 
 There is also a fallback to `ICIL_CACHE_ROOT` for cache location if needed.
+The repo includes [experiments/env.sh](./experiments/env.sh) as the canonical shell snippet to source before running experiment launchers.
 
 ## 17. Current File Map
 

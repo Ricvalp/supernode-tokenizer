@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import os
 import time
+from pathlib import Path
 
 from ml_collections import ConfigDict
 
 from supernode_tokenizer.data import RLBENCH18_TASKS
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def get_config() -> ConfigDict:
@@ -13,7 +16,10 @@ def get_config() -> ConfigDict:
     cfg.seed = 0
 
     cfg.data = ConfigDict()
-    cfg.data.cache_root = os.environ.get("SUPERNODE_TOKENIZER_CACHE_ROOT", os.environ.get("ICIL_CACHE_ROOT", "./.rlbench_cache_standard_il"))
+    cfg.data.cache_root = os.environ.get(
+        "SUPERNODE_TOKENIZER_CACHE_ROOT",
+        os.environ.get("ICIL_CACHE_ROOT", str(REPO_ROOT / ".rlbench_cache_standard_il")),
+    )
     cfg.data.tasks = list(RLBENCH18_TASKS)
     cfg.data.task_sampling = "variation_power"
     cfg.data.task_sampling_alpha = 0.5
@@ -87,7 +93,6 @@ def get_config() -> ConfigDict:
     cfg.model.chunk_decoder.dropout = 0.0
     cfg.model.chunk_decoder.horizon = 16
     cfg.model.chunk_decoder.loss_type = "l1"
-    cfg.model.chunk_decoder.use_task_adaln = True
 
     cfg.optimizer = ConfigDict()
     cfg.optimizer.lr = 1e-4
@@ -113,11 +118,14 @@ def get_config() -> ConfigDict:
     default_run = f"chunk_{cfg.model.encoder_name}_{time.strftime('%Y%m%d_%H%M%S')}"
     cfg.output = ConfigDict()
     cfg.output.run_name = default_run
-    cfg.output.root_dir = os.environ.get("SUPERNODE_TOKENIZER_OUTPUT_ROOT", "supernode-tokenizer/output")
-    cfg.output.checkpoint_dir = os.environ.get("SUPERNODE_TOKENIZER_CHECKPOINT_ROOT", "supernode-tokenizer/checkpoints")
+    cfg.output.root_dir = os.environ.get("SUPERNODE_TOKENIZER_OUTPUT_ROOT", str(REPO_ROOT / "output"))
+    cfg.output.checkpoint_dir = os.environ.get(
+        "SUPERNODE_TOKENIZER_CHECKPOINT_ROOT",
+        str(REPO_ROOT / "checkpoints"),
+    )
 
     cfg.wandb = ConfigDict()
-    cfg.wandb.enable = False
+    cfg.wandb.enable = True
     cfg.wandb.project = os.environ.get("WANDB_PROJECT", "supernode-tokenizer")
     cfg.wandb.entity = os.environ.get("WANDB_ENTITY", "")
     cfg.wandb.mode = os.environ.get("WANDB_MODE", "online")

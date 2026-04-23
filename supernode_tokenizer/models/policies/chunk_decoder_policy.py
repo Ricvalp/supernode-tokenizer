@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ..condition import TaskConditioner, TaskConditionerConfig
+from ..condition import TaskConditioner
 from ..encoders import ObservationEncoder
 from ..common import TaskConditionedCrossAttentionBlock
 
@@ -21,7 +21,6 @@ class ChunkDecoderConfig:
     dropout: float = 0.0
     horizon: int = 16
     loss_type: str = "l1"
-    use_task_adaln: bool = True
 
 
 class ChunkDecoderPolicy(nn.Module):

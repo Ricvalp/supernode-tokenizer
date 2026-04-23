@@ -1,0 +1,33 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Packaging and virtual environments
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+
+# Local tooling and editor state
+.codex
+.vscode/
+.idea/
+.DS_Store
+
+# Experiment outputs and caches
+.rlbench_cache_standard_il/
+output/
+checkpoints/
+eval_output/
+wandb/
+logs/
+
+# Generated media
+raw_episodes_videos/
+*.mp4
