@@ -7,7 +7,8 @@
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=8
 #SBATCH --time=2-00:00
+#SBATCH --output=/home/valperga/supernode-tokenizer/sbatch/das/logs/exp07_rlbench18_perceiver_diffusion-%j.out
+#SBATCH --error=/home/valperga/supernode-tokenizer/sbatch/das/logs/exp07_rlbench18_perceiver_diffusion-%j.err
 
 set -eu
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-exec sh "$SCRIPT_DIR/run_experiment.sh" exp07_rlbench18_perceiver_diffusion.sh "$@"
+exec sh /home/valperga/supernode-tokenizer/sbatch/das/run_experiment.sh exp07_rlbench18_perceiver_diffusion.sh "$@"
