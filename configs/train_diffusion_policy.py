@@ -110,8 +110,8 @@ def get_config() -> ConfigDict:
 
     cfg.train = ConfigDict()
     cfg.train.num_steps = 400000
-    cfg.train.batch_size = 8
-    cfg.train.val_batch_size = 8
+    cfg.train.batch_size = 128
+    cfg.train.val_batch_size = 32
     cfg.train.grad_accum_steps = 1
     cfg.train.num_workers = 4
     cfg.train.amp = True
