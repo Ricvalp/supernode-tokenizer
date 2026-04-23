@@ -1,5 +1,7 @@
 # DAS Sbatch Launchers
 
+These launchers default to the `defq` partition.
+
 Source the DAS environment directly in interactive shells with:
 
 ```bash
