@@ -31,3 +31,7 @@ logs/
 # Generated media
 raw_episodes_videos/
 *.mp4
+
+rlbench/
+urdfs/
+eval_checkpoints/

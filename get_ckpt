@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ./get_ckpt RUN_ID STEP
+
+Examples:
+  ./get_ckpt 23nyfa9u 0267000
+  ./get_ckpt 23nyfa9u 267000
+  ./get_ckpt 23nyfa9u step_0267000.pt
+
+Environment overrides:
+  ICIL_CKPT_REMOTE    Remote checkpoint root.
+                      Default: valperga@fs4.das6.science.uva.nl:/var/scratch/valperga/robotics/rlbench/rlbench18/checkpoints
+  ICIL_EVAL_CKPT_DIR  Local output root.
+                      Default: eval_checkpoints
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ $# -ne 2 ]]; then
+  usage >&2
+  exit 2
+fi
+
+if ! command -v rsync >/dev/null 2>&1; then
+  echo "error: rsync not found in PATH" >&2
+  exit 1
+fi
+
+run_id="$1"
+step="$2"
+
+step="${step#step_}"
+step="${step%.pt}"
+
+if [[ ! "$step" =~ ^[0-9]+$ ]]; then
+  echo "error: STEP must be numeric or look like step_0267000.pt; got '$2'" >&2
+  exit 2
+fi
+
+if [[ ${#step} -lt 7 ]]; then
+  step="$(printf "%07d" "$((10#$step))")"
+fi
+
+remote_root="${ICIL_CKPT_REMOTE:-valperga@fs4.das6.science.uva.nl:/var/scratch/valperga/robotics/rlbench/rlbench18/checkpoints}"
+local_root="${ICIL_EVAL_CKPT_DIR:-eval_checkpoints}"
+
+remote_path="${remote_root%/}/${run_id}/step_${step}.pt"
+local_dir="${local_root%/}/${run_id}/"
+
+mkdir -p "$local_dir"
+
+echo "[get_ckpt] copying:"
+echo "  from: $remote_path"
+echo "  to:   $local_dir"
+
+rsync -rL --progress "$remote_path" "$local_dir"

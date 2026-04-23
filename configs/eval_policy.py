@@ -34,7 +34,7 @@ def get_config() -> ConfigDict:
     cfg.eval.variation_ids = []
 
     cfg.control = ConfigDict()
-    cfg.control.execute_actions_per_plan = 8
+    cfg.control.execute_actions_per_plan = 4
     cfg.control.normalize_quaternion = True
     cfg.control.discretize_gripper = True
 
@@ -56,7 +56,7 @@ def get_config() -> ConfigDict:
     cfg.sim.arm_max_acceleration = 4.0
 
     cfg.video = ConfigDict()
-    cfg.video.enable = False
+    cfg.video.enable = True
     cfg.video.camera = "front"
     cfg.video.format = "gif"
     cfg.video.fps = 20

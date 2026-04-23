@@ -54,6 +54,37 @@ export SUPERNODE_TOKENIZER_OUTPUT_ROOT
 export SUPERNODE_TOKENIZER_CHECKPOINT_ROOT
 export SUPERNODE_TOKENIZER_EVAL_ROOT
 
+# Keep logs unbuffered so long RLBench eval runs flush output promptly.
+: "${PYTHONUNBUFFERED:=1}"
+export PYTHONUNBUFFERED
+
+if [ -z "${XAUTHORITY:-}" ]; then
+  case "${DISPLAY:-}" in
+    localhost:*|127.0.0.1:*|*:*.*)
+      if [ -f "$HOME/.Xauthority" ]; then
+        XAUTHORITY="$HOME/.Xauthority"
+      fi
+      ;;
+    :*)
+      _SNT_UID="$(id -u 2>/dev/null || echo '')"
+      if [ -n "$_SNT_UID" ] && [ -f "/run/user/$_SNT_UID/gdm/Xauthority" ]; then
+        XAUTHORITY="/run/user/$_SNT_UID/gdm/Xauthority"
+      elif [ -f "$HOME/.Xauthority" ]; then
+        XAUTHORITY="$HOME/.Xauthority"
+      fi
+      unset _SNT_UID
+      ;;
+    *)
+      if [ -f "$HOME/.Xauthority" ]; then
+        XAUTHORITY="$HOME/.Xauthority"
+      fi
+      ;;
+  esac
+  if [ -n "${XAUTHORITY:-}" ]; then
+    export XAUTHORITY
+  fi
+fi
+
 # Optional logging defaults. Override these before sourcing if you want
 # machine-specific values.
 : "${WANDB_PROJECT:=supernode-tokenizer}"
@@ -76,14 +107,17 @@ if [ -n "${COPPELIASIM_ROOT:-}" ] && [ -d "$COPPELIASIM_ROOT" ]; then
     *) LD_LIBRARY_PATH="$COPPELIASIM_ROOT${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" ;;
   esac
   export LD_LIBRARY_PATH
-  : "${QT_QPA_PLATFORM_PLUGIN_PATH:=$COPPELIASIM_ROOT}"
-  : "${QT_QPA_PLATFORM:=xcb}"
+  QT_QPA_PLATFORM_PLUGIN_PATH="$COPPELIASIM_ROOT"
+  QT_QPA_PLATFORM="xcb"
+  QT_XCB_GL_INTEGRATION="xcb_glx"
+  __GLX_VENDOR_LIBRARY_NAME="nvidia"
+  : "${DISPLAY:=:99}"
   export QT_QPA_PLATFORM_PLUGIN_PATH
   export QT_QPA_PLATFORM
+  export QT_XCB_GL_INTEGRATION
+  export __GLX_VENDOR_LIBRARY_NAME
+  export DISPLAY
 fi
-
-# Uncomment if your local PyRep/CoppeliaSim setup requires an X server:
-# export DISPLAY=:99
 
 printf '%s\n' '[supernode-tokenizer] environment configured:'
 printf '  %s=%s\n' "SUPERNODE_TOKENIZER_REPO_ROOT" "$SUPERNODE_TOKENIZER_REPO_ROOT"
@@ -91,6 +125,7 @@ printf '  %s=%s\n' "SUPERNODE_TOKENIZER_CACHE_ROOT" "$SUPERNODE_TOKENIZER_CACHE_
 printf '  %s=%s\n' "SUPERNODE_TOKENIZER_OUTPUT_ROOT" "$SUPERNODE_TOKENIZER_OUTPUT_ROOT"
 printf '  %s=%s\n' "SUPERNODE_TOKENIZER_CHECKPOINT_ROOT" "$SUPERNODE_TOKENIZER_CHECKPOINT_ROOT"
 printf '  %s=%s\n' "SUPERNODE_TOKENIZER_EVAL_ROOT" "$SUPERNODE_TOKENIZER_EVAL_ROOT"
+printf '  %s=%s\n' "PYTHONUNBUFFERED" "$PYTHONUNBUFFERED"
 printf '  %s=%s\n' "WANDB_PROJECT" "$WANDB_PROJECT"
 printf '  %s=%s\n' "WANDB_MODE" "$WANDB_MODE"
 if [ -n "${WANDB_ENTITY:-}" ]; then
@@ -105,8 +140,17 @@ fi
 if [ -n "${QT_QPA_PLATFORM:-}" ]; then
   printf '  %s=%s\n' "QT_QPA_PLATFORM" "$QT_QPA_PLATFORM"
 fi
+if [ -n "${QT_XCB_GL_INTEGRATION:-}" ]; then
+  printf '  %s=%s\n' "QT_XCB_GL_INTEGRATION" "$QT_XCB_GL_INTEGRATION"
+fi
+if [ -n "${__GLX_VENDOR_LIBRARY_NAME:-}" ]; then
+  printf '  %s=%s\n' "__GLX_VENDOR_LIBRARY_NAME" "$__GLX_VENDOR_LIBRARY_NAME"
+fi
 if [ -n "${DISPLAY:-}" ]; then
   printf '  %s=%s\n' "DISPLAY" "$DISPLAY"
+fi
+if [ -n "${XAUTHORITY:-}" ]; then
+  printf '  %s=%s\n' "XAUTHORITY" "$XAUTHORITY"
 fi
 
 unset _SNT_ENV_SOURCE

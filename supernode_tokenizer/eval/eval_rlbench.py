@@ -277,13 +277,12 @@ def _build_query_window(
     return out
 
 
-def _build_rlbench_env(cfg: ConfigDict, task_name: str):
+def _build_rlbench_env(cfg: ConfigDict):
     from pyrep.const import RenderMode
     from rlbench import ObservationConfig
     from rlbench.action_modes.action_mode import MoveArmThenGripper
     from rlbench.action_modes.arm_action_modes import EndEffectorPoseViaPlanning
     from rlbench.action_modes.gripper_action_modes import Discrete
-    from rlbench.backend.utils import task_file_to_task_class
     from rlbench.environment import Environment
 
     obs_config = ObservationConfig()
@@ -313,8 +312,7 @@ def _build_rlbench_env(cfg: ConfigDict, task_name: str):
         arm_max_acceleration=float(cfg.sim.arm_max_acceleration),
     )
     env.launch()
-    task_env = env.get_task(task_file_to_task_class(task_name))
-    return env, task_env
+    return env
 
 
 def _run_episode(
@@ -433,7 +431,7 @@ def evaluate_policy(cfg: ConfigDict) -> Dict[str, Any]:
     model.eval()
 
     tasks = [str(task) for task in (list(cfg.eval.tasks) if cfg.eval.tasks else list(task_name_to_id.keys()))]
-    run_id = f"{time.strftime("%Y%m%d-%H%M%S")}_{time.time_ns() % 1000000:06d}"
+    run_id = f"{time.strftime('%Y%m%d-%H%M%S')}_{time.time_ns() % 1000000:06d}"
     out_dir = Path(str(cfg.output.root_dir)).expanduser().resolve() / f"eval_{run_id}"
     out_dir.mkdir(parents=True, exist_ok=True)
     with (out_dir / "resolved_eval_config.json").open("w", encoding="utf-8") as file:
@@ -441,14 +439,17 @@ def evaluate_policy(cfg: ConfigDict) -> Dict[str, Any]:
 
     overall_results: Dict[str, Any] = {"checkpoint": str(checkpoint_path), "tasks": {}, "summary": {}}
     task_success_rates: Dict[str, float] = {}
-    for task_name in tasks:
-        if task_name not in task_name_to_id:
-            raise KeyError(f"Task {task_name!r} is not available in the checkpoint task mapping.")
-        env, task_env = _build_rlbench_env(cfg, task_name)
-        task_dir = out_dir / task_name
-        task_dir.mkdir(parents=True, exist_ok=True)
-        task_results = []
-        try:
+    env = _build_rlbench_env(cfg)
+    try:
+        from rlbench.backend.utils import task_file_to_task_class
+
+        for task_name in tasks:
+            if task_name not in task_name_to_id:
+                raise KeyError(f"Task {task_name!r} is not available in the checkpoint task mapping.")
+            task_env = env.get_task(task_file_to_task_class(task_name))
+            task_dir = out_dir / task_name
+            task_dir.mkdir(parents=True, exist_ok=True)
+            task_results = []
             processor = LiveObservationProcessor(
                 task_env=task_env,
                 num_points=int(cfg.conditioning.num_points),
@@ -486,14 +487,14 @@ def evaluate_policy(cfg: ConfigDict) -> Dict[str, Any]:
                 )
                 res["variation"] = variation
                 task_results.append(res)
-        finally:
-            env.shutdown()
-        success_rate = float(sum(1 for r in task_results if r["success"]) / max(1, len(task_results)))
-        task_success_rates[task_name] = success_rate
-        overall_results["tasks"][task_name] = {
-            "success_rate": success_rate,
-            "episodes": task_results,
-        }
+            success_rate = float(sum(1 for r in task_results if r["success"]) / max(1, len(task_results)))
+            task_success_rates[task_name] = success_rate
+            overall_results["tasks"][task_name] = {
+                "success_rate": success_rate,
+                "episodes": task_results,
+            }
+    finally:
+        env.shutdown()
 
     all_success = float(sum(task_success_rates.values()) / max(1, len(task_success_rates)))
     geometry_subset = [task for task in cfg.eval.geometry_subset if task in task_success_rates]
