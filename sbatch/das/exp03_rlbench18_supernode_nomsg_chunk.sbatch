@@ -7,8 +7,8 @@
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=8
 #SBATCH --time=2-00:00
-#SBATCH --output=/home/valperga/supernode-tokenizer/sbatch/das/exp03_rlbench18_supernode_nomsg_chunk-%j.out
-#SBATCH --error=/home/valperga/supernode-tokenizer/sbatch/das/exp03_rlbench18_supernode_nomsg_chunk-%j.err
+#SBATCH --output=/home/valperga/supernode-tokenizer/sbatch/das/logs/exp03_rlbench18_supernode_nomsg_chunk-%j.out
+#SBATCH --error=/home/valperga/supernode-tokenizer/sbatch/das/logs/exp03_rlbench18_supernode_nomsg_chunk-%j.err
 
 set -eu
 exec sh /home/valperga/supernode-tokenizer/sbatch/das/run_experiment.sh exp03_rlbench18_supernode_nomsg_chunk.sh "$@"

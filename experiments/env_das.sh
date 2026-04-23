@@ -8,6 +8,26 @@ _snt_env_fail() {
   return 1 2>/dev/null || exit 1
 }
 
+_snt_init_modules() {
+  if command -v module >/dev/null 2>&1; then
+    return 0
+  fi
+  for init_script in \
+    /etc/profile.d/modules.sh \
+    /usr/share/modules/init/sh \
+    /usr/share/lmod/lmod/init/sh
+  do
+    if [ -f "$init_script" ]; then
+      # shellcheck disable=SC1090
+      . "$init_script"
+      if command -v module >/dev/null 2>&1; then
+        return 0
+      fi
+    fi
+  done
+  return 1
+}
+
 SUPERNODE_TOKENIZER_REPO_ROOT="/home/valperga/supernode-tokenizer"
 SUPERNODE_TOKENIZER_CACHE_ROOT="/var/scratch/valperga/robotics/rlbench/rlbench18/.rlbench_cache_dense_18"
 SUPERNODE_TOKENIZER_OUTPUT_ROOT="$SUPERNODE_TOKENIZER_REPO_ROOT/output"
@@ -24,6 +44,13 @@ if [ ! -d "$SUPERNODE_TOKENIZER_REPO_ROOT" ]; then
   _snt_env_fail "[supernode-tokenizer] repo root not found: $SUPERNODE_TOKENIZER_REPO_ROOT"
   return 1 2>/dev/null || exit 1
 fi
+
+if ! _snt_init_modules; then
+  _snt_env_fail "[supernode-tokenizer] unable to initialize environment modules on DAS"
+  return 1 2>/dev/null || exit 1
+fi
+
+module load cuda12.6/toolkit
 
 : "${WANDB_PROJECT:=supernode-tokenizer}"
 : "${WANDB_MODE:=online}"
@@ -60,6 +87,7 @@ printf '  %s=%s\n' "WANDB_MODE" "$WANDB_MODE"
 if [ -n "${WANDB_ENTITY:-}" ]; then
   printf '  %s=%s\n' "WANDB_ENTITY" "$WANDB_ENTITY"
 fi
+printf '  %s=%s\n' "CUDA_MODULE" "cuda12.6/toolkit"
 if [ -n "${COPPELIASIM_ROOT:-}" ]; then
   printf '  %s=%s\n' "COPPELIASIM_ROOT" "$COPPELIASIM_ROOT"
 fi
@@ -73,4 +101,5 @@ if [ -n "${DISPLAY:-}" ]; then
   printf '  %s=%s\n' "DISPLAY" "$DISPLAY"
 fi
 
+unset -f _snt_init_modules
 unset -f _snt_env_fail

@@ -1,7 +1,7 @@
 # DAS Sbatch Launchers
 
 These launchers default to the `defq` partition.
-Stdout and stderr are written under `sbatch/das/` with filenames based on the experiment name and Slurm job id.
+Stdout and stderr are written under `sbatch/das/logs/` with filenames based on the experiment name and Slurm job id.
 
 Source the DAS environment directly in interactive shells with:
 
