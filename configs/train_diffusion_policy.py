@@ -132,7 +132,7 @@ def get_config() -> ConfigDict:
     )
 
     cfg.wandb = ConfigDict()
-    cfg.wandb.enable = False
+    cfg.wandb.enable = True
     cfg.wandb.project = os.environ.get("WANDB_PROJECT", "supernode-tokenizer")
     cfg.wandb.entity = os.environ.get("WANDB_ENTITY", "")
     cfg.wandb.mode = os.environ.get("WANDB_MODE", "online")
