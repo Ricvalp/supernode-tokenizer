@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+python scripts/train_diffusion_policy.py \
+  --config=configs/train_diffusion_policy.py \
+  --config.model.encoder_name=dp3 \
+  --config.output.run_name=rlbench18_dp3_diffusion

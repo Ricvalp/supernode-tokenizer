@@ -5,6 +5,8 @@ from typing import Tuple
 
 from .condition import TaskConditioner, TaskConditionerConfig
 from .encoders import (
+    ObservationDP3Encoder,
+    ObservationDP3EncoderConfig,
     ObservationPerceiverEncoder,
     ObservationPerceiverEncoderConfig,
     ObservationSupernodeEncoder,
@@ -23,6 +25,7 @@ class ModelConfig:
     task_conditioner: TaskConditionerConfig = field(
         default_factory=lambda: TaskConditionerConfig(num_tasks=18, d_model=512, n_task_tokens=4)
     )
+    dp3_encoder: ObservationDP3EncoderConfig = field(default_factory=ObservationDP3EncoderConfig)
     perceiver_encoder: ObservationPerceiverEncoderConfig = field(default_factory=ObservationPerceiverEncoderConfig)
     supernode_encoder: ObservationSupernodeEncoderConfig = field(default_factory=ObservationSupernodeEncoderConfig)
     supernode_nomsg_encoder: ObservationSupernodeNoMessageEncoderConfig = field(default_factory=ObservationSupernodeNoMessageEncoderConfig)
@@ -32,6 +35,8 @@ class ModelConfig:
 
 def build_encoder(cfg: ModelConfig, *, state_dim: int):
     name = str(cfg.encoder_name)
+    if name == "dp3":
+        return ObservationDP3Encoder(cfg=cfg.dp3_encoder, state_dim=state_dim)
     if name == "perceiver":
         return ObservationPerceiverEncoder(cfg=cfg.perceiver_encoder, state_dim=state_dim)
     if name == "supernode":
@@ -62,6 +67,8 @@ def build_policy(cfg: ModelConfig, *, state_dim: int, action_dim: int):
 
 
 def infer_active_d_model(cfg: ModelConfig) -> int:
+    if str(cfg.encoder_name) == "dp3":
+        return int(cfg.dp3_encoder.d_model)
     if str(cfg.encoder_name) == "perceiver":
         return int(cfg.perceiver_encoder.d_model)
     if str(cfg.encoder_name) == "supernode":

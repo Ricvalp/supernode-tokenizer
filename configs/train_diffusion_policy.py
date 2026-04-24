@@ -37,6 +37,25 @@ def get_config() -> ConfigDict:
     cfg.model.n_task_tokens = 4
     cfg.model.encoder_name = "supernode"
 
+    cfg.model.dp3_encoder = ConfigDict()
+    cfg.model.dp3_encoder.d_model = 512
+    cfg.model.dp3_encoder.use_rgb = False
+    cfg.model.dp3_encoder.fps_num_points = 1024
+    cfg.model.dp3_encoder.point_hidden_dim1 = 64
+    cfg.model.dp3_encoder.point_hidden_dim2 = 128
+    cfg.model.dp3_encoder.point_hidden_dim3 = 256
+    cfg.model.dp3_encoder.point_feature_dim = 64
+    cfg.model.dp3_encoder.state_hidden_dim = 64
+    cfg.model.dp3_encoder.state_feature_dim = 64
+    cfg.model.dp3_encoder.n_heads = 8
+    cfg.model.dp3_encoder.post_self_attn_layers = 0
+    cfg.model.dp3_encoder.post_self_attn_mlp_mult = 4
+    cfg.model.dp3_encoder.dropout = 0.0
+    cfg.model.dp3_encoder.attention_backend = "manual"
+    cfg.model.dp3_encoder.time_embed_max = 32
+    cfg.model.dp3_encoder.tokenize_frames_chunked = True
+    cfg.model.dp3_encoder.chunk_frames = 64
+
     cfg.model.perceiver_encoder = ConfigDict()
     cfg.model.perceiver_encoder.d_model = 512
     cfg.model.perceiver_encoder.n_heads = 8

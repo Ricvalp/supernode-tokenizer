@@ -96,6 +96,7 @@ def setup_runtime(cfg: Any) -> tuple[TrainChunkRuntime, Any, Any]:
         dropout=float(model_cfg.task_conditioner.dropout),
     )
     for section_name, section in (
+        ("dp3_encoder", cfg.model.dp3_encoder),
         ("perceiver_encoder", cfg.model.perceiver_encoder),
         ("supernode_encoder", cfg.model.supernode_encoder),
         ("supernode_nomsg_encoder", cfg.model.supernode_nomsg_encoder),
@@ -104,6 +105,8 @@ def setup_runtime(cfg: Any) -> tuple[TrainChunkRuntime, Any, Any]:
         target = getattr(model_cfg, section_name)
         for key, value in section.items():
             setattr(target, key, value)
+    model_cfg.dp3_encoder.use_rgb = bool(cfg.data.use_rgb)
+    cfg.model.dp3_encoder.use_rgb = bool(cfg.data.use_rgb)
     validate_model_config(model_cfg)
 
     train_cfg = StandardILConfig(
