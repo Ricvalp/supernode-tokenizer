@@ -6,7 +6,7 @@
 #SBATCH --account=ceesusers
 #SBATCH --gres=gpu:1
 #SBATCH --mem=60G
-#SBATCH --cpus-per-task=40
+#SBATCH --cpus-per-task=10
 #SBATCH --time=2-00:00
 #SBATCH --output=/home/rvalper/supernode-tokenizer/sbatch/ivi/logs/exp05_rlbench18_perceiver_chunk_lowdata20-%j.out
 #SBATCH --error=/home/rvalper/supernode-tokenizer/sbatch/ivi/logs/exp05_rlbench18_perceiver_chunk_lowdata20-%j.err
