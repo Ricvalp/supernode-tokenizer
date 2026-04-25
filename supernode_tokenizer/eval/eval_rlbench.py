@@ -61,7 +61,27 @@ def _load_checkpoint(path: Path, device: torch.device) -> Dict[str, Any]:
 
 def _model_cfg_from_checkpoint(ckpt: Dict[str, Any]) -> ModelConfig:
     config = (ckpt.get("config", {}) or {}).get("model", {})
-    return dataclass_from_dict(ModelConfig(), config)
+    model_cfg = dataclass_from_dict(ModelConfig(), config)
+    if str(model_cfg.policy_head) == "chunk":
+        state_dict = ckpt.get("model", {}) or {}
+        if any(str(k).startswith(("action_in.", "action_out.", "time_mlp.", "task_cond_proj.", "denoiser.")) for k in state_dict):
+            model_cfg.policy_head = "diffusion"
+    return model_cfg
+
+
+def _apply_eval_settings_from_checkpoint(cfg: ConfigDict, ckpt: Dict[str, Any]) -> None:
+    config = ckpt.get("config", {}) or {}
+    dataset_cfg = config.get("dataset", {}) or {}
+    data_cfg = config.get("data", {}) or {}
+
+    if "T_obs" in dataset_cfg:
+        cfg.dataset.T_obs = int(dataset_cfg["T_obs"])
+    if "stride" in dataset_cfg:
+        cfg.dataset.stride = int(dataset_cfg["stride"])
+    if "use_rgb" in data_cfg:
+        cfg.conditioning.use_rgb = bool(data_cfg["use_rgb"])
+    if "use_mask_id" in data_cfg:
+        cfg.conditioning.use_mask_id = bool(data_cfg["use_mask_id"])
 
 
 def _normalize_quaternion_xyzw(q: np.ndarray) -> np.ndarray:
@@ -419,12 +439,20 @@ def evaluate_policy(cfg: ConfigDict) -> Dict[str, Any]:
     device = _resolve_device(str(cfg.device))
     checkpoint_path = Path(str(cfg.checkpoint_path)).expanduser().resolve()
     ckpt = _load_checkpoint(checkpoint_path, device)
-    model_cfg = _model_cfg_from_checkpoint(ckpt)
-    state_dim = int(ckpt.get("state_dim", 8))
-    action_dim = int(ckpt.get("action_dim", 8))
+    _apply_eval_settings_from_checkpoint(cfg, ckpt)
     task_name_to_id = {str(k): int(v) for k, v in (ckpt.get("task_name_to_id", {}) or {}).items()}
     if not task_name_to_id:
         raise RuntimeError("Checkpoint is missing task_name_to_id; cannot run class-conditioned evaluation.")
+    model_cfg = _model_cfg_from_checkpoint(ckpt)
+    task_conditioner_cfg = model_cfg.task_conditioner
+    model_cfg.task_conditioner = type(task_conditioner_cfg)(
+        num_tasks=len(task_name_to_id),
+        d_model=int(task_conditioner_cfg.d_model),
+        n_task_tokens=int(task_conditioner_cfg.n_task_tokens),
+        dropout=float(task_conditioner_cfg.dropout),
+    )
+    state_dim = int(ckpt.get("state_dim", 8))
+    action_dim = int(ckpt.get("action_dim", 8))
 
     model = build_policy(model_cfg, state_dim=state_dim, action_dim=action_dim).to(device)
     model.load_state_dict(ckpt["model"], strict=True)

@@ -26,12 +26,12 @@ def get_config() -> ConfigDict:
     cfg.conditioning.use_mask_id = True
 
     cfg.eval = ConfigDict()
-    cfg.eval.tasks = list(RLBENCH18_TASKS)
-    cfg.eval.geometry_subset = list(GEOMETRY_SENSITIVE_TASKS)
+    cfg.eval.tasks = ()
+    cfg.eval.geometry_subset = tuple(GEOMETRY_SENSITIVE_TASKS)
     cfg.eval.episodes_per_task = 25
     cfg.eval.max_env_steps = 200
-    cfg.eval.query_stride_mode = "dataset"
-    cfg.eval.variation_ids = []
+    cfg.eval.query_stride_mode = "step" # "dataset"
+    cfg.eval.variation_ids = (0,)
 
     cfg.control = ConfigDict()
     cfg.control.execute_actions_per_plan = 4
@@ -44,8 +44,8 @@ def get_config() -> ConfigDict:
 
     cfg.robustness = ConfigDict()
     cfg.robustness.point_dropout = 0.0
-    cfg.robustness.point_counts = [4096, 2048, 1024, 512]
-    cfg.robustness.point_dropouts = [0.0, 0.25, 0.5]
+    cfg.robustness.point_counts = (4096, 2048, 1024, 512)
+    cfg.robustness.point_dropouts = (0.0, 0.25, 0.5)
 
     cfg.sim = ConfigDict()
     cfg.sim.image_size = (128, 128)

@@ -36,6 +36,7 @@ def get_config() -> ConfigDict:
     cfg.model.d_model = 512
     cfg.model.n_task_tokens = 4
     cfg.model.encoder_name = "supernode"
+    cfg.model.policy_head = "diffusion"
 
     cfg.model.dp3_encoder = ConfigDict()
     cfg.model.dp3_encoder.d_model = 512
