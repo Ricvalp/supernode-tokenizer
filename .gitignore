@@ -35,3 +35,5 @@ raw_episodes_videos/
 rlbench/
 urdfs/
 eval_checkpoints/
+
+*.pyc
