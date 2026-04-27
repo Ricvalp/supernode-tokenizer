@@ -122,7 +122,7 @@ def get_config() -> ConfigDict:
     cfg.model.diffusion_policy.num_inference_steps = 50
 
     cfg.optimizer = ConfigDict()
-    cfg.optimizer.lr = 1e-4
+    cfg.optimizer.lr = 5e-5
     cfg.optimizer.beta1 = 0.9
     cfg.optimizer.beta2 = 0.95
     cfg.optimizer.weight_decay = 1e-4
