@@ -16,10 +16,10 @@ Source the IvI environment in interactive shells with:
 source experiments/env_ivi.sh
 ```
 
-The IvI environment script only sets repo/cache/output/checkpoint roots.
-If IvI needs a specific Python environment, activate it before sourcing
-`experiments/env_ivi.sh`, or export `SUPERNODE_TOKENIZER_CONDA_PREFIX`
-before submission.
+The IvI environment script also defaults to the `icil-rlbench` conda
+environment under `$HOME/miniconda3`. If IvI uses a different conda path,
+export `SUPERNODE_TOKENIZER_CONDA_ROOT`, `SUPERNODE_TOKENIZER_CONDA_ENV`, or
+`SUPERNODE_TOKENIZER_CONDA_PREFIX` before sourcing `experiments/env_ivi.sh`.
 
 Submit training jobs with:
 
