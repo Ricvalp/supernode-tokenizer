@@ -21,7 +21,7 @@ def get_config() -> ConfigDict:
     cfg.dataset.stride = 2
 
     cfg.conditioning = ConfigDict()
-    cfg.conditioning.num_points = 4096
+    cfg.conditioning.num_points = 2048
     cfg.conditioning.use_rgb = False
     cfg.conditioning.use_mask_id = True
 
@@ -34,7 +34,7 @@ def get_config() -> ConfigDict:
     cfg.eval.variation_ids = (0,)
 
     cfg.control = ConfigDict()
-    cfg.control.execute_actions_per_plan = 4
+    cfg.control.execute_actions_per_plan = 8
     cfg.control.normalize_quaternion = True
     cfg.control.discretize_gripper = True
 
